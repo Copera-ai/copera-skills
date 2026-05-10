@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "copera-ai",
+  "description": "Official skills for the Copera platform — drive boards, docs, drive, and channels from any AI coding agent.",
+  "owner": {
+    "name": "Copera LLC",
+    "email": "support@copera.ai"
+  },
+  "plugins": [
+    {
+      "name": "copera",
+      "source": "./",
+      "description": "Teaches AI agents how to use the Copera CLI to work with boards, docs, drive, and channels in your workspace.",
+      "version": "0.1.0",
+      "homepage": "https://developer.copera.ai/skills/overview",
+      "repository": "https://github.com/copera-ai/copera-skills",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["copera", "cli", "boards", "docs", "drive", "workspace"]
+    }
+  ]
+}

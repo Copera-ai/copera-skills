@@ -1,0 +1,13 @@
+{
+  "name": "copera",
+  "description": "Teaches AI agents how to use the Copera CLI to work with boards, docs, drive, and channels.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Copera LLC",
+    "email": "support@copera.ai"
+  },
+  "homepage": "https://developer.copera.ai/skills/overview",
+  "repository": "https://github.com/copera-ai/copera-skills",
+  "license": "MIT",
+  "keywords": ["copera", "cli", "boards", "docs", "drive", "workspace"]
+}
