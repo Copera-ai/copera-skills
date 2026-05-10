@@ -1,5 +1,5 @@
 ---
-name: cli
+name: copera-cli
 description: Drive a Copera workspace from the terminal via the `copera` CLI — list and update boards, tables, rows, docs, drive files, and channels. Load this skill when the user asks anything about Copera, copera CLI, their Copera boards/docs/drive, or wants to automate work in Copera.
 ---
 

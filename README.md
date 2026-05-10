@@ -8,7 +8,7 @@ This repository is a **Claude Code marketplace** and a **Cursor plugin** at the 
 
 ```
 skills/
-└── cli/                    # the Copera CLI skill — works on any agent
+└── copera-cli/             # the Copera CLI skill — works on any agent
     ├── SKILL.md            # router — "load reference/X.md when user asks Y"
     ├── reference/          # domain references, loaded on demand
     │   ├── auth-and-profiles.md
@@ -34,7 +34,7 @@ Future skills (SDKs, API, integrations) will be added under `skills/<name>/`.
 /plugin install copera@copera-ai
 ```
 
-Invoke with `/copera:cli` or let it auto-trigger from your prompt.
+Invoke with `/copera-cli` or let it auto-trigger from your prompt.
 
 ### Cursor
 
