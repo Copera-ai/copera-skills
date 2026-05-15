@@ -16,6 +16,55 @@ copera rows get  --board <B> --table <T> <rowId> --json
 
 `rows get` (human output only) auto-resolves option IDs and LINK display strings against the cached table schema. JSON output is raw — agents work with raw IDs.
 
+### Filter & sort
+
+`rows list` accepts `--filter` (JSON) and `--sort` (`colA:asc,colB:desc`). Both are optional. The CLI passes them through as query params; the API validates.
+
+```bash
+copera rows list --board <B> --table <T> --json \
+  --filter '{"match":"and","conditions":[
+    {"column_id":"col_status","operator":"equals","value":["opt_done"]},
+    {"column_id":"col_assignee","operator":"is_empty"}
+  ]}' \
+  --sort col_due:asc
+
+# Load the filter from a file with @path
+copera rows list --board <B> --table <T> --filter @./filter.json --json
+```
+
+Filter shape:
+
+```json
+{
+  "match": "and",
+  "conditions": [
+    { "column_id": "<id>", "operator": "<op>", "value": <v> }
+  ]
+}
+```
+
+`match` is `"and"` (default) or `"or"`. Up to 20 conditions. **No nested groups**.
+
+Operators by column type:
+
+| Type   | Operators |
+|--------|-----------|
+| string | `equals`, `not_equals`, `contains`, `not_contains`, `starts_with`, `ends_with`, `is_empty`, `is_not_empty` |
+| number | `equals`, `not_equals`, `gt`, `gte`, `lt`, `lte`, `includes`, `not_includes`, `is_empty`, `is_not_empty` |
+| select | `equals`, `not_equals`, `includes`, `not_includes`, `is_empty`, `is_not_empty` |
+| bool   | `equals`, `not_equals`, `is_empty`, `is_not_empty` |
+| date   | `equals`, `before`, `after`, `between`, `today`, `yesterday`, `tomorrow`, `next_7_days`, `last_7_days`, `current_week`, `last_week`, `next_week`, `current_month`, `last_month`, `next_month`, `is_empty`, `is_not_empty` |
+
+Value shape:
+
+- String → `string`
+- Number `gt`/`gte`/`lt`/`lte`/`equals`/`not_equals` → `number`; `includes`/`not_includes` → `number[]`
+- Select → `string` or `string[]` of option IDs
+- Date `equals`/`before`/`after` → ISO date string; `between` → `[startISO, endISO]`; relative operators (`today`, `current_week`, …) → omit `value`
+- `is_empty` / `is_not_empty` → omit `value`
+
+Sorting by a `PASSWORD` column returns `400`.
+
 Row JSON shape:
 
 ```json
