@@ -65,10 +65,15 @@ This is **async**: server returns 202, CLI prints `Content update queued (operat
 ## Update metadata
 
 ```bash
-copera docs metadata <docId> [--title "…"] [--icon "…"] [--cover "…"]
+copera docs metadata <docId> [--title "…"] \
+  [--icon-type emoji|image --icon-value "…"] \
+  [--cover-type color|image --cover-value "…"]
+
+copera docs metadata <docId> --icon-type emoji --icon-value 📄
+copera docs metadata <docId> --cover-type color --cover-value blue
 ```
 
-At least one of the three flags is required. `icon` and `cover` are workspace-specific values — ask the user for valid choices rather than guessing.
+At least one update is required. Icon and cover use a `{type, value}` shape: `--icon-type` and `--icon-value` must be set **together** (a partial pair errors), and likewise `--cover-type` with `--cover-value`. The valid `value`s are workspace-specific — ask the user rather than guessing.
 
 ## Create
 
