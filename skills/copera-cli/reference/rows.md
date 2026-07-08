@@ -2,7 +2,7 @@
 
 CRUD on rows. Every write needs the column schema first — see `boards-tables.md`.
 
-All `rows` subcommands require `--board <id>` and `--table <id>` (or those IDs set on the active profile). The row ID is a positional argument to `get`, `update`, `update-description`, `delete`, `comment`, and `comments`; `list` and `create` take no row positional.
+All `rows` subcommands require `--board <id>` and `--table <id>` (or those IDs set on the active profile). The row ID is a positional argument to `get`, `update`, `description`, `column-content`, `update-column-content`, `delete`, `comment`, `comments`, and the `attachments` subcommands; `list` and `create` take no row positional.
 
 ## Read
 
@@ -12,9 +12,12 @@ copera rows list --board <B> --table <T> --json
 
 copera rows get  --board <B> --table <T> <rowId> --json
 # → single row with columns array
+
+copera rows get  --board <B> --table <T> --row 42 --json
+# → look up by the visible Row# instead of the internal id
 ```
 
-`rows get` (human output only) auto-resolves option IDs and LINK display strings against the cached table schema. JSON output is raw — agents work with raw IDs.
+`rows get` accepts **either** the positional internal row ID **or** `--row <n>` (the user-visible Row#, a positive integer) — supply exactly one, never both. `rows get` (human output only) auto-resolves option IDs and LINK display strings against the cached table schema. JSON output is raw — agents work with raw IDs.
 
 ### Filter & sort
 
@@ -79,11 +82,12 @@ Row JSON shape:
     { "columnId": "col_a4f2", "value": "opt_2",            "linkValue": null },
     { "columnId": "col_link", "value": ["66xy…", "66yz…"], "linkValue": ["Acme Inc.", "Globex"] }
   ],
-  "updatedAt": "2026-05-09T12:34:56Z"
+  "updatedAt": "2026-05-09T12:34:56Z",
+  "url": "https://app.copera.ai/…"
 }
 ```
 
-`rowId` is the user-visible sequential number (e.g. "Row #42"); `id` is the canonical 24-char ObjectId.
+`rowId` is the user-visible sequential number (e.g. "Row #42"); `id` is the canonical 24-char ObjectId. `url` is the deep link to the row in the app (returned by `get`, `create`, and `update`).
 
 ## Create
 
@@ -119,16 +123,50 @@ Same payload shape as `create`. Stdin works too.
 
 Only the columns you include are touched — omitted columns retain their values.
 
-## Update description (markdown body)
+## Description & rich-text (DESCRIPTION) columns
+
+There are two distinct long-text surfaces on a row. Do not confuse them:
+
+1. The **fixed legacy row description** (shown by `rows get` as `Description (legacy)`). Read-only from the CLI — there is no writable command for it.
+2. **RICH TEXT / DESCRIPTION column cells** — a table can have several. These are the writable long-text fields; select which one with `--column <colId>` (find the ID via `tables get --json`).
+
+### Read the legacy description
 
 ```bash
-copera rows update-description <rowId> --board <B> --table <T> \
-    [--operation replace|append|prepend] [--content "…"]
+copera rows description <rowId> --board <B> --table <T>
+# → raw markdown of the legacy field. With --json → {"content":"..."}
 ```
 
-Content from `--content` or stdin. Default operation is `replace`.
+### Read a rich-text column cell
 
-This is **async**: the server returns 202, the CLI prints `Description update queued (operation: …). Processing is async.`. Re-read with `rows get` after a few seconds.
+```bash
+copera rows column-content <rowId> --board <B> --table <T> --column <colId>
+# → raw markdown of that cell (empty when unset). With --json → {"content":"..."}
+```
+
+### Write a rich-text column cell
+
+```bash
+copera rows update-column-content <rowId> --board <B> --table <T> --column <colId> \
+    [--operation replace|append|prepend] [--content "…"]
+echo '# Notes' | copera rows update-column-content <rowId> --board <B> --table <T> --column <colId>
+```
+
+Content from `--content` or stdin. Default operation is `replace` (`append`/`prepend` also available). This is **async**: the server returns 202 and the CLI reports the update as queued. Re-read with `rows column-content` after a few seconds.
+
+## Attachments (FILE columns)
+
+FILE columns hold an array of attachments. Manage them under `rows attachments`; every subcommand needs `--column <colId>` (a FILE column):
+
+```bash
+copera rows attachments upload   <rowId> <file-path> --board <B> --table <T> --column <colId>
+copera rows attachments download <rowId> --board <B> --table <T> --column <colId> --file <fileId> [-o ./out.pdf]
+copera rows attachments delete   <rowId> --board <B> --table <T> --column <colId> --file <fileId> [--force]
+```
+
+- `upload` takes the local path as a second positional and attaches it to the cell.
+- `download` requires `--file <fileId>`; `-o`/`--dest` sets the output path (default: current dir + original filename).
+- `delete` requires `--file <fileId>` and **only detaches** the file from the cell — the stored bytes are not deleted. Destructive-gated (`--force` in non-interactive mode).
 
 ## Delete
 

@@ -17,7 +17,7 @@ Every error is JSON on **stderr** (regardless of `--json` setting on stdout):
 
 | Field | Meaning |
 |---|---|
-| `error` | Machine-readable type code (e.g. `auth_required`, `missing_id`, `api_error`, `input_error`, `unknown_profile`, `invalid_flag`, `unsafe_url`, `confirmation_required`). |
+| `error` | Machine-readable type code (e.g. `auth_required`, `missing_id`, `missing_flag`, `api_error`, `request_failed`, `input_error`, `invalid_row`, `unknown_profile`, `invalid_flag`, `unsafe_url`, `confirmation_required`). Not exhaustive — branch on the exit code first, treat the type string as a hint. |
 | `message` | Human-readable detail. |
 | `suggestion` | Often actionable — surface it to the user. |
 | `transient` | If `true`, retry after a backoff. If `false`, the same call will fail again. |
@@ -28,7 +28,7 @@ Every error is JSON on **stderr** (regardless of `--json` setting on stdout):
 |---|---|---|
 | 0 | success | |
 | 1 | generic error | network failure, server 500, write errors |
-| 2 | usage error | missing/invalid flags, missing IDs, bad JSON in `--data` |
+| 2 | usage error | missing/invalid flags, missing IDs, bad JSON in `--data`, missing `--force` on a destructive op (`confirmation_required`) |
 | 3 | not found | unknown board/table/row/doc/file ID |
 | 4 | auth failure | no token, expired token, wrong token type for endpoint |
 | 5 | conflict | concurrent edit, version mismatch |
@@ -38,7 +38,7 @@ Agents should branch on exit code first, then on the `error` field for finer rou
 
 ## Rate limits
 
-Published per-endpoint quotas:
+Published per-endpoint quotas (API-side facts — verify against the current API, quotas may change):
 
 | Surface | Limit |
 |---|---|
@@ -59,10 +59,12 @@ On exit code 6 (`error: "rate_limit"`, `transient: true`), wait until `x-ratelim
 
 These return 202 Accepted and process in the background:
 
-- `copera docs update <docId>`
-- `copera rows update-description <rowId>`
+- `copera docs update <docId>` — rich-text doc body update.
+- `copera rows update-column-content <rowId> --column <columnId>` — updates a RICH TEXT / DESCRIPTION column cell.
 
-The CLI prints `… update queued (operation: …). Processing is async.` and exits 0. **There is no dedicated status endpoint.** To verify completion, re-read with `docs content` / `rows get` after a few seconds and compare. Don't claim the change landed until you've read it back.
+The CLI prints `… update queued (operation: …). Processing is async.` and exits 0. **There is no dedicated status endpoint.** To verify completion, re-read with `docs content` / `rows get` (or `rows column-content`) after a few seconds and compare. Don't claim the change landed until you've read it back.
+
+`copera tables export` is usually synchronous, but for PDF/ZIP or large renders the API returns an **async job** (`asyncJob`) instead of an inline payload — poll/re-request rather than assuming the file is ready immediately.
 
 ## Retries
 

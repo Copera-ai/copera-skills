@@ -17,6 +17,9 @@ skills/
     │   ├── docs.md
     │   ├── drive.md
     │   ├── comments-channels.md
+    │   ├── workspace.md
+    │   ├── bookings-meetings.md
+    │   ├── search-notifications.md
     │   └── errors-and-retries.md
     └── workflows/          # how to generate per-user workflow skills
         ├── build-workflow-skill.md

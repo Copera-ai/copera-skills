@@ -1,17 +1,32 @@
 ---
 name: copera-cli
-description: Drive a Copera workspace from the terminal via the `copera` CLI — list and update boards, tables, rows, docs, drive files, and channels. Load this skill when the user asks anything about Copera, copera CLI, their Copera boards/docs/drive, or wants to automate work in Copera.
+description: Drive a Copera workspace from the terminal via the `copera` CLI — boards, tables, rows, docs, drive files, channels, workspace members/teams, bookings, meeting notes, notifications, and global search. Load this skill when the user asks anything about Copera, copera CLI, their Copera boards/docs/drive, or wants to automate work in Copera.
 ---
 
 # Copera CLI Skill
 
-You are working with **Copera**, a unified workspace for boards (databases), docs (markdown), drive (files), and channels (messaging). The `copera` CLI is the agent-friendly interface to a user's workspace.
+You are working with **Copera**, a unified workspace for boards (databases), docs (markdown), drive (files), channels (messaging), workspace members and teams, bookings and meeting notes, notifications, and global search. The `copera` CLI is the agent-friendly interface to a user's workspace.
 
 ## Before you start
 
 1. **Verify the CLI is installed**: `copera version`. If missing, point the user at `https://developer.copera.ai/cli/overview#installation`.
 2. **Verify auth**: `copera auth status --json`. If unauthenticated, ask the user to run `copera auth login`. Never paste tokens into prompts.
-3. **Always use `--json`** when reading output programmatically. Human-formatted output is for the user, not for you.
+3. **Know who you are**: `copera auth whoami --json` returns the authenticated **user** (`name`, `email`, `user_id`) alongside the workspace (`name`, `slug`). Use it to confirm the token maps to the person and workspace the user expects before acting.
+4. **Always use `--json`** when reading output programmatically. Human-formatted output is for the user, not for you.
+
+## Global flags (available on every command)
+
+| Flag | Effect |
+|---|---|
+| `--json` | Force JSON output. Always use this when parsing output yourself. |
+| `--output auto\|json\|table\|plain` | Pick the output format explicitly (`auto` detects a TTY). |
+| `--profile <name>` | Use a specific config profile (board/table/token defaults). |
+| `--token <token>` | Override the token from config and `COPERA_CLI_AUTH_TOKEN`. |
+| `--no-input` | Disable all interactive prompts. |
+| `-q, --quiet` | Suppress informational messages. |
+| `--verbose` | Show HTTP request/response details (debugging). |
+
+**Non-interactive mode** is active when `--no-input` is passed **or** `CI=true` — in that mode the CLI never prompts, so pass every required value as a flag. Set **`COPERA_SANDBOX=1`** to point the CLI at Copera's dev/staging hosts instead of production.
 
 ## Routing — load the right reference file before acting
 
@@ -19,12 +34,17 @@ Copera is **unopinionated**: every workspace organizes boards/tables/docs/drive 
 
 | When the user asks about… | Read first |
 |---|---|
-| Logging in, tokens, profiles, default IDs | `reference/auth-and-profiles.md` |
-| Listing boards, inspecting table schemas, columns | `reference/boards-tables.md` |
-| Creating, reading, updating, or commenting on rows | `reference/rows.md` |
+| Logging in, tokens, profiles, default IDs, `auth whoami` | `reference/auth-and-profiles.md` |
+| Listing boards/tables, inspecting column schemas | `reference/boards-tables.md` |
+| Creating or editing boards, tables, or columns; exporting a table view | `reference/boards-tables.md` |
+| Creating, reading, updating, deleting, or commenting on rows | `reference/rows.md` |
+| Row FILE attachments; rich-text / Description column cells (`column-content`) | `reference/rows.md` |
 | Markdown docs (tree, search, create, update, delete) | `reference/docs.md` |
 | Files and folders (tree, upload, download, search) | `reference/drive.md` |
-| Comments on rows, channel messages | `reference/comments-channels.md` |
+| Channels, messaging, DMs, participants, row comments | `reference/comments-channels.md` |
+| Workspace info, members, teams | `reference/workspace.md` |
+| Bookings, booking types, scheduling, meeting notes | `reference/bookings-meetings.md` |
+| Global search across the workspace; notifications | `reference/search-notifications.md` |
 | Errors, exit codes, rate limits, retries | `reference/errors-and-retries.md` |
 | Building a reusable workflow skill for the user | `workflows/build-workflow-skill.md` |
 

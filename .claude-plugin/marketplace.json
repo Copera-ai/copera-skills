@@ -11,7 +11,7 @@
       "name": "copera",
       "source": "./",
       "description": "Teaches AI agents how to use the Copera CLI to work with boards, docs, drive, and channels in your workspace.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "homepage": "https://developer.copera.ai/skills/overview",
       "repository": "https://github.com/copera-ai/copera-skills",
       "license": "MIT",
